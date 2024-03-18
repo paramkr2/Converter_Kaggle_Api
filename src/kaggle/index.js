@@ -4,10 +4,12 @@ import { createNotebook } from './notebookCreator.js';
 //const apiKey = process.env.API_KEY;
 //const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
 // Function to push the kernel version
-export const pushKernel = async (username, apiKey,videoUrl,crfValue) => {
+export const pushKernel = async (username, apiKey,videoUrl,crfValue,name) => {
     try {
-        const notebook = createNotebook(videoUrl,crfValue);
-        console.log(notebook);
+		const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
+		// filename formatting is needed later.. for removing anyting like spaces and non alphabets 
+		const fileName = (name==undefined)?'fileoutput':name ; // use if name is available 
+        const notebook = createNotebook(videoUrl,crfValue,fileName);
         const notebookId = "n-" + new Date().getTime().toString(36);
         const payload = {
             slug: `${username}/${notebookId}`,
@@ -26,8 +28,6 @@ export const pushKernel = async (username, apiKey,videoUrl,crfValue) => {
             categoryIds: [],
         };
 
-        
-
         const response = await axios.post('https://www.kaggle.com/api/v1/kernels/push', payload, {
             headers: {
                 'Content-Type': 'application/json',
@@ -35,10 +35,7 @@ export const pushKernel = async (username, apiKey,videoUrl,crfValue) => {
             }
         });
         const url = response.data.url;
-        const hasError = response.data.hasError;
-
         console.log(`URL: ${url}`);
-        console.log(`Has Error: ${hasError ? 'Yes' : 'No'}`);
 		if(url===undefined){
 			throw new Error('Url is Undefined: Check Creditionals or Payload')
 		}
@@ -51,8 +48,9 @@ export const pushKernel = async (username, apiKey,videoUrl,crfValue) => {
 
 // Function to check kernel status
 // Function to check kernel status
-export async function checkKernelStatus(notebookId) {
+export async function checkKernelStatus(username, apiKey,notebookId) {
     try {
+		const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
         let status = '';
         while (status !== 'complete') {
             const statusUrl = `https://www.kaggle.com/api/v1/kernels/status?userName=${username}&kernelSlug=${notebookId}`;
@@ -63,9 +61,12 @@ export async function checkKernelStatus(notebookId) {
             });
             status = response.data.status;
 			console.log(`Kernel Status ${status}`)
+			return status ;
+			/**
             if (status !== 'complete') {
                 await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 1 second before checking again
             }
+			**/
         }
         console.log('Kernel execution completed.');
         return;
@@ -75,8 +76,9 @@ export async function checkKernelStatus(notebookId) {
     }
 }
 // Main function
-export async function downloadKernelOutput(notebookId) {
+export async function downloadKernelOutput(username, apiKey,notebookId) {
     try {
+		const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
         const response = await axios.get('https://www.kaggle.com/api/v1/kernels/output', {
             params: {
                 userName: username,
@@ -91,7 +93,7 @@ export async function downloadKernelOutput(notebookId) {
             link: file.url
         }));
 
-        console.log('Processed files:', files);
+        
         return files;
     } catch (error) {
         console.error('Error downloading kernel output:', error);

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { login,createTask, deleteTask, taskStatus ,listTask } from '../controller/task.js';
-import authMiddleware from '../middlewares/authMiddleware.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 const router = Router();
 
 router.post('/login',login);

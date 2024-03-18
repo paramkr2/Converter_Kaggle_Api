@@ -11,13 +11,13 @@ const createCell = (code) =>{
 	return cell
 }
 
-export const createNotebook = (videoUrl,crfValue) => {
+export const createNotebook = (videoUrl,crfValue,fileName) => {
     // Define the content of the notebook cells
     // Create a new notebook object with the defined cells
     return {
         cells: [	createCell('!pip install yt-dlp'), 
-					createCell(`!yt-dlp --output video ${videoUrl}`),
-					createCell(`!ffmpeg -i vid* -c:v libx265 -preset fast -crf ${crfValue} finaloutput.mkv`)
+					createCell(`!yt-dlp --output zvideo ${videoUrl}`),
+					createCell(`!ffmpeg -i zvid* -c:v libx265 -preset fast -crf ${crfValue} ${fileName}.mkv`)
 					
 				],
         metadata: {
