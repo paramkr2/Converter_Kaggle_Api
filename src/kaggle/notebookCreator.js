@@ -1,25 +1,25 @@
 // notebookCreator.js
-export const createNotebook = () => {
+
+const createCell = (code) =>{ 
+	const cell = {
+        cell_type: 'code',
+        execution_count: null,
+        metadata: {},
+        outputs: [],
+        source: [code]
+    };
+	return cell
+}
+
+export const createNotebook = (videoUrl,crfValue) => {
     // Define the content of the notebook cells
-    const cell1 = {
-        cell_type: 'code',
-        execution_count: null,
-        metadata: {},
-        outputs: [],
-        source: ['print("This is it")']
-    };
-
-    const cell2 = {
-        cell_type: 'code',
-        execution_count: null,
-        metadata: {},
-        outputs: [],
-        source: ['open("dummy.txt", "w").write("This is a dummy file.")']
-    };
-
     // Create a new notebook object with the defined cells
     return {
-        cells: [cell1, cell2],
+        cells: [	createCell('!pip install yt-dlp'), 
+					createCell(`!yt-dlp --output video ${videoUrl}`),
+					createCell(`!ffmpeg -i vid* -c:v libx265 -preset fast -crf ${crfValue} finaloutput.mkv`)
+					
+				],
         metadata: {
             kernelspec: {
                 display_name: 'Python 3',

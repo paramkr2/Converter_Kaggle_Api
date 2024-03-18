@@ -1,17 +1,13 @@
 import axios from 'axios';
 import { createNotebook } from './notebookCreator.js';
-import dotenv from 'dotenv';
-dotenv.config({ path: 'var.env' });
-
-const username = process.env.USER_NAME;
-const apiKey = process.env.API_KEY;
-const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
+//const username = process.env.USER_NAME;
+//const apiKey = process.env.API_KEY;
+//const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
 // Function to push the kernel version
-async function pushKernel(username, apiKey,authString) {
+export const pushKernel = async (username, apiKey,videoUrl,crfValue) => {
     try {
-        const notebook = createNotebook();
+        const notebook = createNotebook(videoUrl,crfValue);
         console.log(notebook);
-
         const notebookId = "n-" + new Date().getTime().toString(36);
         const payload = {
             slug: `${username}/${notebookId}`,
@@ -22,7 +18,7 @@ async function pushKernel(username, apiKey,authString) {
             isPrivate: "true",
             enableGpu: "false",
             enableTpu: "false",
-            enableInternet: "false",
+            enableInternet: "true",
             datasetDataSources: [],
             competitionDataSources: [],
             kernelDataSources: [],
@@ -55,7 +51,7 @@ async function pushKernel(username, apiKey,authString) {
 
 // Function to check kernel status
 // Function to check kernel status
-async function checkKernelStatus(username, notebookId, authString) {
+export async function checkKernelStatus(notebookId) {
     try {
         let status = '';
         while (status !== 'complete') {
@@ -68,7 +64,7 @@ async function checkKernelStatus(username, notebookId, authString) {
             status = response.data.status;
 			console.log(`Kernel Status ${status}`)
             if (status !== 'complete') {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 1 second before checking again
             }
         }
         console.log('Kernel execution completed.');
@@ -79,7 +75,7 @@ async function checkKernelStatus(username, notebookId, authString) {
     }
 }
 // Main function
-async function downloadKernelOutput(username, notebookId, authString) {
+export async function downloadKernelOutput(notebookId) {
     try {
         const response = await axios.get('https://www.kaggle.com/api/v1/kernels/output', {
             params: {
@@ -103,12 +99,37 @@ async function downloadKernelOutput(username, notebookId, authString) {
     }
 }
 // Main function
-async function main() {
-    const notebookId = await pushKernel(username, apiKey,authString);
 
+export async function checkUserCredentials(username, apiKey) {
+    const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
     try {
-        await checkKernelStatus(username, notebookId, authString);
-        await downloadKernelOutput(username, notebookId, authString);
+        const response = await axios.get('https://www.kaggle.com/api/v1/kernels/list', {
+            headers: {
+                'Authorization': `Basic ${authString}`
+            }
+        });
+
+        //console.log('Kernel list:', response.data);
+		if( response.data.message == 'Unauthorized access' ){
+			return false
+		}else{
+			return true 
+		}
+    } catch (error) {
+        console.error('Error downloading kernel list:', error.message);
+        throw error; // Re-throwing the error to be handled by the caller
+    }
+}
+
+
+/**
+async function main() {
+	let videoUrl = 'https://www.youtube.com/watch?v=0GeCBavvPH8'
+	let crfValue = '32'
+    const notebookId = await pushKernel(videoUrl,crfValue);
+    try {
+        await checkKernelStatus(notebookId);
+        await downloadKernelOutput(notebookId);
     } catch (error) {
         console.error('Error in main function:', error);
     }
@@ -116,3 +137,5 @@ async function main() {
 
 // Call the main function
 main();
+
+**/
