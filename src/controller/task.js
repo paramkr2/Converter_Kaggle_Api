@@ -86,7 +86,7 @@ export const taskStatus = async (req, res) => {
 };
 
 
-
+// Dont think i can delete kernel.. for future implementation 
 export const   deleteTask = async (req, res) => {
     try {
         // code to handle task deletion, import models and stuff
@@ -99,6 +99,20 @@ export const   deleteTask = async (req, res) => {
 
 export const listTask = async (req, res) => {
     try {
+		// fetch from databse 
+		const { userId, username, key } = res.locals;
+		const {page=1,limit=10} = req.query;
+		const skip = (page-1)*limit ;
+		const tasks = await Task.find({userId})
+											 .sort({ createdAt: -1 })
+											 .skip(skip)
+											 .limit(limit)
+											 
+		const totalTasks = await Task.countDocuments({ userId });
+		console.log(tasks)
+		const totalPages = Math.ceil(totalTasks/limit)
+		return res.status(200).send({tasks,totalPages,currentPage:page})
+		
         // code to handle task status retrieval, import models and stuff
     } catch (err) {
         console.log(err);
