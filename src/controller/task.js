@@ -1,4 +1,4 @@
-import User from '../models/User.js'
+import User from '../models/user.js'
 import {checkUserCredentials,pushKernel,checkKernelStatus,downloadKernelOutput} from '../kaggle/index.js'
 import jwt from 'jsonwebtoken'
 import Task from '../models/task.js'
