@@ -65,7 +65,13 @@ export const taskStatus = async (req, res) => {
 
         // Query Kaggle to check task status
         const taskStatus = await checkKernelStatus(username, key, notebookId);
+		// update databse if diffrent from db 
+		
         if (taskStatus !== 'complete') {
+			if( taskStatus !== taskdb.status ){
+				taskdb.status = taskStatus;
+				await taskdb.save();
+			}
             return res.status(200).send({ status: taskStatus });
         }
 
@@ -73,7 +79,7 @@ export const taskStatus = async (req, res) => {
         const files = await downloadKernelOutput(username, key, notebookId);
 
         // Update task status and output file URL in the database
-        taskdb.status = 'completed';
+        taskdb.status = taskStatus;
         taskdb.outputFileUrl = files[0].link; // Update this with the actual file URL
         await taskdb.save();
 
