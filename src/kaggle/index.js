@@ -102,7 +102,7 @@ export async function downloadKernelOutput(username, apiKey,notebookId) {
 }
 // Main function
 
-export async function checkUserCredentials(username, apiKey) {
+export const checkUserCredentials = async (username, apiKey) => {
     const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
     try {
         const response = await axios.get('https://www.kaggle.com/api/v1/kernels/list', {
@@ -122,7 +122,6 @@ export async function checkUserCredentials(username, apiKey) {
         throw error; // Re-throwing the error to be handled by the caller
     }
 }
-
 
 /**
 async function main() {
