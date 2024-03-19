@@ -1,9 +1,6 @@
 import mongoose  from 'mongoose';
-const uri = process.env.DB_URL
 
-
-
-const dbConnect = async () => {
+const dbConnect = async (uri) => {
     try {
         await mongoose.connect(uri, {
             useNewUrlParser: true,

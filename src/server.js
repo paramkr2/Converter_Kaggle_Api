@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: 'var.env' });
+
 import app from './index.js'
 import dbConnect from './config/db.js'
 const PORT = process.env.PORT || 3000 
@@ -8,6 +11,6 @@ const server = app.listen( PORT , HOST, ()=>{
 // listen to port 
 
 // connect to mongodb databse 
-dbConnect();
+dbConnect(process.env.DB_URL);
 
 export default server ;
