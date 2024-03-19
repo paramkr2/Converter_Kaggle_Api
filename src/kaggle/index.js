@@ -52,22 +52,21 @@ export async function checkKernelStatus(username, apiKey,notebookId) {
     try {
 		const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
         let status = '';
-        while (status !== 'complete') {
-            const statusUrl = `https://www.kaggle.com/api/v1/kernels/status?userName=${username}&kernelSlug=${notebookId}`;
-            const response = await axios.get(statusUrl, {
-                headers: {
-                    'Authorization': `Basic ${authString}`
-                }
-            });
-            status = response.data.status;
-			console.log(`Kernel Status ${status}`)
-			return status ;
-			/**
-            if (status !== 'complete') {
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 1 second before checking again
-            }
-			**/
-        }
+		const statusUrl = `https://www.kaggle.com/api/v1/kernels/status?userName=${username}&kernelSlug=${notebookId}`;
+		const response = await axios.get(statusUrl, {
+			headers: {
+				'Authorization': `Basic ${authString}`
+			}
+		});
+		status = response.data.status;
+		console.log(`Kernel Status ${status}`)
+		return status ;
+		/**
+		if (status !== 'complete') {
+			await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for 1 second before checking again
+		}
+		**/
+        
         console.log('Kernel execution completed.');
         return;
     } catch (error) {
@@ -102,7 +101,7 @@ export async function downloadKernelOutput(username, apiKey,notebookId) {
 }
 // Main function
 
-export const checkUserCredentials = async (username, apiKey) => {
+export async function checkUserCredentials(username, apiKey) {
     const authString = Buffer.from(`${username}:${apiKey}`).toString('base64');
     try {
         const response = await axios.get('https://www.kaggle.com/api/v1/kernels/list', {
@@ -122,6 +121,7 @@ export const checkUserCredentials = async (username, apiKey) => {
         throw error; // Re-throwing the error to be handled by the caller
     }
 }
+
 
 /**
 async function main() {

@@ -109,6 +109,10 @@ export const listTask = async (req, res) => {
 		const { userId, username, key } = res.locals;
 		const {page=1,limit=10} = req.query;
 		const skip = (page-1)*limit ;
+		
+		//pending task updates 
+		pendingTaskUpdate(userId,username,key) ;
+		// other stuff 
 		const tasks = await Task.find({userId})
 											 .sort({ createdAt: -1 })
 											 .skip(skip)
@@ -126,3 +130,31 @@ export const listTask = async (req, res) => {
     }
 }
 
+
+
+const pendingTaskUpdate = async(userId, username,key) => {
+	
+	const pendingAndQueuedTasks = await Task.find({ userId, status: { $in: ['pending', 'queued'] } })
+			.sort({ createdAt: 1 });
+	
+	for (const task of pendingAndQueuedTasks) {
+		// Query Kaggle to check task status
+        const taskStatus = await checkKernelStatus(username, key, task.notebookId);
+		// if note queued then break, no further files will be running 
+		// task.status == 'completed' is not possible since we are only checking pending and running tasks 
+		if(taskStatus=='queued'  ){
+			break; 
+		}else if (taskStatus == 'running') {
+			if( taskStatus !== task.status ){
+				task.status = taskStatus;
+				await task.save();
+			}
+        }else{
+			const files = await downloadKernelOutput(username, key, task.notebookId);
+			// Update task status and output file URL in the database
+			task.status = taskStatus;
+			task.outputFileUrl = files[0].link; // Update this with the actual file URL
+			await task.save();
+		}
+	}
+}
