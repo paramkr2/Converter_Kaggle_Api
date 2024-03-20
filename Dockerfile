@@ -13,8 +13,4 @@ RUN npm install
 # RUN npm ci --only=production
 
 # Bundle app source
-<<<<<<< HEAD
 COPY . .
-=======
-COPY . .
->>>>>>> 7ff6c8828dc6070b8f86152b6730bfda3d34c306
