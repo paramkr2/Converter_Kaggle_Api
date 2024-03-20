@@ -80,7 +80,7 @@ export const taskStatus = async (req, res) => {
 
         // Update task status and output file URL in the database
         taskdb.status = taskStatus;
-        taskdb.outputFileUrl = files[0].link; // Update this with the actual file URL
+        task.outputFileUrl = files[0]?.link || 'Error'; // Update this with the actual file URL
         await taskdb.save();
 
         // Send response with task status and output files
@@ -153,7 +153,7 @@ const pendingTaskUpdate = async(userId, username,key) => {
 			const files = await downloadKernelOutput(username, key, task.notebookId);
 			// Update task status and output file URL in the database
 			task.status = taskStatus;
-			task.outputFileUrl = files[0].link; // Update this with the actual file URL
+			task.outputFileUrl = files[0]?.link || 'Error'; // Update this with the actual file URL
 			await task.save();
 		}
 	}
