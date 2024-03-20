@@ -89,7 +89,7 @@ export async function downloadKernelOutput(username, apiKey,notebookId) {
         });
         const files = response.data.files.map(file => ({
             name: file.fileName,
-            link: file.url
+            link: file?.url || 'Error'
         }));
 
         

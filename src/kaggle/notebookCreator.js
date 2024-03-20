@@ -16,7 +16,7 @@ export const createNotebook = (videoUrl,crfValue,fileName) => {
     // Create a new notebook object with the defined cells
     return {
         cells: [	createCell('!pip install yt-dlp'), 
-					createCell(`!yt-dlp --output zvideo ${videoUrl}`),
+					createCell(`!yt-dlp --output zvideo '${videoUrl}'`),
 					createCell(`!ffmpeg -i zvid* -c:v libx265 -preset fast -crf ${crfValue} ${fileName}.mkv`)
 					
 				],
