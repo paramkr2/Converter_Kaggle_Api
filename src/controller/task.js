@@ -80,7 +80,7 @@ export const taskStatus = async (req, res) => {
 
         // Update task status and output file URL in the database
         taskdb.status = taskStatus;
-        task.outputFileUrl = files[0]?.link || 'Error'; // Update this with the actual file URL
+        taskdb.outputFileUrl = files[0]?.link || 'Error'; // Update this with the actual file URL
         await taskdb.save();
 
         // Send response with task status and output files
@@ -111,7 +111,7 @@ export const listTask = async (req, res) => {
 		const skip = (page-1)*limit ;
 		
 		//pending task updates 
-		pendingTaskUpdate(userId,username,key) ;
+		await pendingTaskUpdate(userId,username,key) ;
 		// other stuff 
 		const tasks = await Task.find({userId})
 											 .sort({ createdAt: -1 })
@@ -134,9 +134,9 @@ export const listTask = async (req, res) => {
 
 const pendingTaskUpdate = async(userId, username,key) => {
 	
-	const pendingAndQueuedTasks = await Task.find({ userId, status: { $in: ['pending', 'queued'] } })
+	const pendingAndQueuedTasks = await Task.find({ userId, status: { $in: ['running', 'queued'] } })
 			.sort({ createdAt: 1 });
-	
+	console.log('pendingandQueuedTasks', pendingAndQueuedTasks);
 	for (const task of pendingAndQueuedTasks) {
 		// Query Kaggle to check task status
         const taskStatus = await checkKernelStatus(username, key, task.notebookId);
